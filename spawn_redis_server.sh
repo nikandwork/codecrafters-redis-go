@@ -6,6 +6,10 @@
 #
 # DON'T EDIT THIS!
 set -e
+
 tmpFile=$(mktemp)
-go build -o "$tmpFile" app/*.go
-exec "$tmpFile"
+
+( cd $(dirname "$0") &&
+	go build -o "$tmpFile" ./cmd/myredis )
+
+exec "$tmpFile" "$@"
