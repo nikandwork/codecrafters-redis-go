@@ -35,9 +35,25 @@ func run() (err error) {
 
 	log.Printf("listening %v", l.Addr())
 
-	_, err = l.Accept()
+	c, err := l.Accept()
 	if err != nil {
 		return errors.Wrap(err, "accept")
+	}
+
+	defer closeIt(c, &err, "close connection")
+
+	buf := make([]byte, 128)
+
+	n, err := c.Read(buf)
+	if err != nil {
+		return errors.Wrap(err, "read command")
+	}
+
+	log.Printf("command:\n%s", buf[:n])
+
+	_, err = c.Write([]byte("+PONG\r\n"))
+	if err != nil {
+		return errors.Wrap(err, "write response")
 	}
 
 	return nil
