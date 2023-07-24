@@ -35,11 +35,19 @@ func run() (err error) {
 
 	log.Printf("listening %v", l.Addr())
 
-	c, err := l.Accept()
-	if err != nil {
-		return errors.Wrap(err, "accept")
+	for {
+		c, err := l.Accept()
+		if err != nil {
+			return errors.Wrap(err, "accept")
+		}
+
+		go handleConn(c)
 	}
 
+	return nil
+}
+
+func handleConn(c net.Conn) (err error) {
 	defer closeIt(c, &err, "close connection")
 
 	buf := make([]byte, 128)
