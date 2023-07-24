@@ -44,16 +44,21 @@ func run() (err error) {
 
 	buf := make([]byte, 128)
 
-	n, err := c.Read(buf)
-	if err != nil {
-		return errors.Wrap(err, "read command")
-	}
+	for {
+		n, err := c.Read(buf)
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			return errors.Wrap(err, "read command")
+		}
 
-	log.Printf("command:\n%s", buf[:n])
+		log.Printf("command:\n%s", buf[:n])
 
-	_, err = c.Write([]byte("+PONG\r\n"))
-	if err != nil {
-		return errors.Wrap(err, "write response")
+		_, err = c.Write([]byte("+PONG\r\n"))
+		if err != nil {
+			return errors.Wrap(err, "write response")
+		}
 	}
 
 	return nil
